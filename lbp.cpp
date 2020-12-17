@@ -52,7 +52,7 @@ int main(int argc, char* argv[] )
         std::cout << "LTP calculation app\n\n"
                   << "./ltp [depth image] [width] [height] \n\n"
                   << "flags:\n"  
-                  // << "-o: output file path\n" 
+                  << "-o: output file path\n" 
                   << std::endl; 
 
         return 0;
@@ -63,10 +63,10 @@ int main(int argc, char* argv[] )
     const uint32_t width = atoi(argv[2]);
     const uint32_t height = atoi(argv[3]);
     
-    // std::string outpath = "";
-    // if (cmd_option_exists(argv, argv+argc, "-o")){
-    //     outpath = get_cmd_option(argv, argv+argc, "-o");
-    // } 
+    std::string outpath = "";
+    if (cmd_option_exists(argv, argv+argc, "-o")){
+        outpath = get_cmd_option(argv, argv+argc, "-o");
+    } 
 
     const float min_depth = 0.5f;
     const float max_depth = 3.f;
@@ -120,6 +120,10 @@ int main(int argc, char* argv[] )
 
 
     Mat lbp_img (height, width, CV_8UC1, lbp.data());
+
+    if ("" != outpath) {
+        imwrite(outpath, lbp_img);
+    }
 
     imshow("lbp", lbp_img);
     waitKey(0);

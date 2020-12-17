@@ -38,3 +38,8 @@ target_link_libraries( "ltp" ${OpenCV_LIBS} )
 add_executable( "lbp" lbp.cpp ${HELPER_FILES} )
 target_link_libraries( "lbp" ${OpenCV_LIBS} )
 
+
+
+add_executable( "sift" sift.cpp ${HELPER_FILES} )
+target_link_libraries( "sift" ${OpenCV_LIBS} )
+

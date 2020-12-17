@@ -52,7 +52,8 @@ int main(int argc, char* argv[] )
         std::cout << "LTP calculation app\n\n"
                   << "./ltp [depth image] [width] [height] \n\n"
                   << "flags:\n"  
-                  // << "-o: output file path\n" 
+                  << "-o: output file path\n" 
+                  << "-k: normalised k value\n" 
                   << std::endl; 
 
         return 0;
@@ -62,11 +63,19 @@ int main(int argc, char* argv[] )
     std::string img1path = argv[1];
     const uint32_t width = atoi(argv[2]);
     const uint32_t height = atoi(argv[3]);
+
     
-    // std::string outpath = "";
-    // if (cmd_option_exists(argv, argv+argc, "-o")){
-    //     outpath = get_cmd_option(argv, argv+argc, "-o");
-    // } 
+    
+    std::string outpath = "";
+    if (cmd_option_exists(argv, argv+argc, "-o")){
+        outpath = get_cmd_option(argv, argv+argc, "-o");
+    } 
+
+    float normalised_k = 0.001;
+    if (cmd_option_exists(argv, argv+argc, "-k")){
+        normalised_k = atof( get_cmd_option(argv, argv+argc, "-k") );
+    } 
+
 
     const float min_depth = 0.5f;
     const float max_depth = 3.f;
@@ -81,7 +90,6 @@ int main(int argc, char* argv[] )
     imshow("depth", depth_image);
     waitKey(0);
 
-    const float normalised_k = 0.001;
 
     std::vector<uint8_t> pos_ltp (width * height, 0);
     std::vector<uint8_t> neg_ltp (width * height, 0);
@@ -127,6 +135,12 @@ int main(int argc, char* argv[] )
 
     Mat pos_ltp_img (height, width, CV_8UC1, pos_ltp.data());
     Mat neg_ltp_img (height, width, CV_8UC1, neg_ltp.data());
+
+
+    if ("" != outpath) {
+        imwrite(outpath + "_pos.png", pos_ltp_img);
+        imwrite(outpath + "_neg.png", neg_ltp_img);
+    }
 
 
     imshow("pos", pos_ltp_img);
