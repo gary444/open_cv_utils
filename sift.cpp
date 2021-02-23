@@ -55,10 +55,10 @@ int main(int argc, char* argv[] )
     using namespace cv;
 
     const int     nfeatures         = 100; // 0 = no limit
-    const int     nOctaveLayers     = 3;
+    const int     nOctaveLayers     = 5;
     const double  contrastThreshold = 0.04;
     const double  edgeThreshold     = 10;
-    const double  sigma             = 1.6;
+    const double  sigma             = 1.0;
 
     auto sift =  cv::xfeatures2d::SIFT::create(nfeatures, nOctaveLayers, contrastThreshold, edgeThreshold, sigma);
 
@@ -86,21 +86,28 @@ int main(int argc, char* argv[] )
     sift->compute( image1, keypoints[0], descriptors[0]);
     sift->compute( image2, keypoints[1], descriptors[1]);
     // find strong matches between keypoints
-    // std::vector<DMatch> matches;
-    // matcher->match( descriptors[0], descriptors[1], matches); // alternative: knn matches for multiple matches
 
-    // alternative: knn matches for multiple matches
-    std::vector<std::vector<DMatch>> knn_matches;
-    const int k = 2;
-    matcher->knnMatch(descriptors[0], descriptors[1],knn_matches, k);
+    const bool RATIO_TEST = false;
 
     std::vector<DMatch> matches;
-    for (const auto& match_set : knn_matches){
-        if ( match_set[0].distance < MATCH_RATIO * match_set[1].distance ){
-            matches.push_back(match_set[0]);
-        }
-    }
 
+    if (RATIO_TEST){
+
+        // alternative: knn matches for multiple matches
+        std::vector<std::vector<DMatch>> knn_matches;
+        const int k = 2;
+        matcher->knnMatch(descriptors[0], descriptors[1],knn_matches, k);
+
+        for (const auto& match_set : knn_matches){
+            if ( match_set[0].distance < MATCH_RATIO * match_set[1].distance ){
+                matches.push_back(match_set[0]);
+            }
+        }
+
+    } else {
+
+        matcher->match( descriptors[0], descriptors[1], matches); // alternative: knn matches for multiple matches
+    }
 
 
     Mat out_img_matches;
@@ -109,7 +116,7 @@ int main(int argc, char* argv[] )
                  matches, 
                  out_img_matches, 
                  Scalar(0,255,0), // match colour
-                 Scalar(128,0,0) // no-match colour
+                 Scalar(0,0,255) // no-match colour
                  // std::vector<char>(), 
                  // DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS 
                  );

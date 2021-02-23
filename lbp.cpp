@@ -53,6 +53,7 @@ int main(int argc, char* argv[] )
                   << "./ltp [depth image] [width] [height] \n\n"
                   << "flags:\n"  
                   << "-o: output file path\n" 
+                  << "-d: downsample factor for depth\n" 
                   << std::endl; 
 
         return 0;
@@ -68,6 +69,11 @@ int main(int argc, char* argv[] )
         outpath = get_cmd_option(argv, argv+argc, "-o");
     } 
 
+    uint32_t downsample_factor = 1;
+    if (cmd_option_exists(argv, argv+argc, "-d")){
+        downsample_factor = atoi(  get_cmd_option(argv, argv+argc, "-d") );
+    } 
+
     const float min_depth = 0.5f;
     const float max_depth = 3.f;
     
@@ -77,6 +83,16 @@ int main(int argc, char* argv[] )
 
 
     Mat depth_image (height, width, CV_32FC1, depth.data());
+
+    if (downsample_factor > 1){
+
+        std::cout << "Downsampling..." << std::endl;
+
+        Mat ds_of_image;
+        resize(depth_image, ds_of_image, Size(width / downsample_factor, height / downsample_factor),0,0,INTER_LINEAR);
+        // upsample again to get blocky effect
+        resize(ds_of_image, depth_image, Size(width, height),0,0,INTER_NEAREST);
+    }
 
     imshow("depth", depth_image);
     waitKey(0);
